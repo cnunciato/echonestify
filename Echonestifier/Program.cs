@@ -79,6 +79,10 @@ namespace Echonestifier
                 {
                     string[] t = s.Split('|');
 
+                    // TODO: Since artists and albums aren't marked for inclusion in incrementals
+                    // even when their tracks change, we should instead gather these and query 
+                    // content server for their names.
+
                     if (artists.ContainsKey(t[3]))
                     {
                         var track = new {
