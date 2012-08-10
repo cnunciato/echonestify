@@ -83,7 +83,7 @@ namespace Echonestifier
                     // even when their tracks change, we should instead gather these and query 
                     // content server for their names.
 
-                    if (artists.ContainsKey(t[3]))
+                    if (artists.ContainsKey(t[3]) && t[2].Trim() != "")
                     {
                         var track = new {
                            id = t[0],
