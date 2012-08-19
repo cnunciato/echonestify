@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using System.Text;
 using System.Xml.Linq;
 using System.IO;
 using System.Web;
@@ -39,6 +40,26 @@ namespace Echonestifier
              }
         }
 
+        public static string RemoveControlCharacters(string inString)
+        {
+            if (inString == null) return null;
+
+            StringBuilder newString = new StringBuilder();
+            char ch;
+
+            for (int i = 0; i < inString.Length; i++)
+            {
+
+                ch = inString[i];
+
+                if (!char.IsControl(ch))
+                {
+                    newString.Append(ch);
+                }
+            }
+            return newString.ToString();
+        }
+
         static void Main(string[] args)
         {
             if (args.Length != 2)
@@ -52,14 +73,14 @@ namespace Echonestifier
 
             IEnumerable<string> artistNodes =
                 from el in SimpleStreamAxis(sourceFile, "artist")
-                select (string)(el.Element("artistId").Value + "|" + el.Element("name").Value);
+                select (string)(el.Element("artistId").Value.ToString() + "|" + el.Element("name").Value.ToString());
 
             var artists = new Dictionary<string, string>();
             int count = 0;
 
             foreach (string s in artistNodes)
             {
-                string[] a = s.Split('|');
+                string[] a = RemoveControlCharacters(s).Split('|');
                 artists.Add(a[0], a[1]);
 
                 Console.Write("\r{0} artists parsed", (++count).ToString());
@@ -68,16 +89,16 @@ namespace Echonestifier
             IEnumerable<string> trackNodes =
                 from el in SimpleStreamAxis(sourceFile, "track")
                 where el.Element("artistId") != null
-                select (string)(el.Element("trackId").Value + "|" + el.Element("name").Value + "|" + el.Element("isrc").Value + "|" + el.Element("artistId").Value);
+                select (string)(el.Element("trackId").Value.ToString() + "|" + el.Element("name").Value.ToString() + "|" + el.Element("isrc").Value.ToString() + "|" + el.Element("artistId").Value.ToString());
 
-            using (StreamWriter outfile = new StreamWriter(destinationFile, false, new System.Text.UTF8Encoding(false)))
+            using (StreamWriter outfile = new StreamWriter(destinationFile, false, new System.Text.UTF8Encoding(false, true)))
             {
                 Console.Write("\n");
                 count = 0;
                 
                 foreach (string s in trackNodes)
                 {
-                    string[] t = s.Split('|');
+                    string[] t = RemoveControlCharacters(s).Split('|');
 
                     // TODO: Since artists and albums aren't marked for inclusion in incrementals
                     // even when their tracks change, we should instead gather these and query 
